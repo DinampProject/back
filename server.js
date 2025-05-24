@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
 
 const MAX_WORKERS = process.env.NODE_ENV === 'development' ? 1 : os.cpus().length;
 const eventEmitter = new EventEmitter();
