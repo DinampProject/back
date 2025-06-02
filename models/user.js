@@ -1,27 +1,22 @@
 import mongoose from 'mongoose';
 import { connectionSchema } from './connection.js';
+import { clientSchema } from './client.js';
 
 const userSchema = new mongoose.Schema(
   {
-    /*  ►  הנתונים שהגיעו במסך הכניסה עם Google OAuth  */
+    uid:    { type: String, required: true, trim: true },
     name:   { type: String, required: true, trim: true },
     email:  { type: String, required: true, unique: true, lowercase: true, trim: true },
-    image:  String,           // כתובת התמונה מגוגל
-
-    /*  ►  מערך החיבורים (Facebook וכו׳)  */
+    image:  String,         
     connections: [connectionSchema],
-
-    /*  ►  לקוחות / פרויקטים של אותו משתמש (אופציונלי) */
-    clients: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Client' }],
-
-    /*  ►  הגדרות נוספות – חופשי  */
+    clients: [clientSchema],
     settings: {
       language:      { type: String, default: 'en' },
       notifications: { type: Boolean, default: true },
       theme:         { type: String, enum: ['light', 'dark'], default: 'light' },
     },
   },
-  { timestamps: true }
+  { timestamps: true, _id: true }
 );
 
 export default mongoose.model('User', userSchema);

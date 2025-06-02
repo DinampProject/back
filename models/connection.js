@@ -10,5 +10,5 @@ export const connectionSchema = new mongoose.Schema(
     extra:           mongoose.Schema.Types.Mixed, // מקום גמיש לעתיד
     connectedAt:     { type: Date, default: Date.now },
   },
-  { _id: false }                   // אין צורך ב-_id לכל חיבור
+  { _id: true }                 
 );
