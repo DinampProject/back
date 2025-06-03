@@ -5,7 +5,7 @@
 import axios from 'axios';
 import crypto from 'crypto';
 import asyncHandler from 'express-async-handler';
-import User from '../../models/User.js';
+import User from "../../models/user"
 
 /* ---------------------------------------------------- */
 /* ENV                                                  */
