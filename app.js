@@ -20,6 +20,7 @@ const BACKEND_DEV_MODE = process.env.DEV_MODE || ''; // ✅ Read secret from bac
 const corsOptions = {
   origin: [
     'http://localhost:3000',
+    "https://dinamp-b0904.web.app"
   ],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: [
