@@ -1,11 +1,7 @@
-/**
- * Facebook / Messenger Controller
- * stores connection details inside user.connections (no separate model)
- */
 import axios from 'axios';
 import crypto from 'crypto';
 import asyncHandler from 'express-async-handler';
-import User from "../../models/user"
+import User from '../../models/user.js';
 
 /* ---------------------------------------------------- */
 /* ENV                                                  */

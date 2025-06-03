@@ -1,11 +1,7 @@
-/**
- * WhatsApp Business Cloud Controller
- * שומר את פרטי-החיבור בתוך user.connections (ללא מודל נפרד)
- */
 import axios from 'axios';
 import crypto from 'crypto';
 import asyncHandler from 'express-async-handler';
-import User from "../../models/user"
+import User from "../../models/user.js";
 
 /* ---------------------------------------------------- */
 /* ENV                                                  */
