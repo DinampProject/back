@@ -1,14 +1,28 @@
+// models/connection.js
+
 import mongoose from 'mongoose';
+import encrypt from 'mongoose-encryption';
+
 export const connectionSchema = new mongoose.Schema(
   {
-    provider:        { type: String, required: true }, // 'facebook', 'google' …
-    /* ↓  שדות ייחודיים לפייסבוק; שדות אחרים אפשר לשמור ב-extra */
-    pageId:          String,
-    pageName:        String,
-    pageAccessToken: String,   // ✱ המלצה: הצפנה לפני שמירה
+    provider: { type: String, required: true },
+    pageId: String,
+    pageName: String,
+    pageAccessToken: String,
     userAccessToken: String,
-    extra:           mongoose.Schema.Types.Mixed, // מקום גמיש לעתיד
-    connectedAt:     { type: Date, default: Date.now },
+    extra: mongoose.Schema.Types.Mixed,
+    connectedAt: { type: Date, default: Date.now },
   },
-  { _id: true }                 
+  { _id: true }
 );
+
+// Encrypt sensitive fields
+const secret = process.env.ENCRYPTION_SECRET;
+if (!secret) {
+  throw new Error('ENCRYPTION_SECRET must be set in environment variables');
+}
+
+connectionSchema.plugin(encrypt, {
+  secret,
+  encryptedFields: ['pageAccessToken', 'userAccessToken'],
+});

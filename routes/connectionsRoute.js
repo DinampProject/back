@@ -1,11 +1,19 @@
 // routes/connectionsRoute.js
 import express from 'express';
 import {
-  getFacebookAuthUrl,
+  connectFacebookAccount,
   exchangeFacebookCode,
   sendFacebookNotification,
   disconnectFacebook,
 } from '../controllers/connections/facebookController.js';
+
+import {
+  getWhatsappAuthUrl,
+  exchangeWhatsappCode,
+  sendWhatsappNotification,
+  disconnectWhatsapp,
+  whatsappWebhook,
+} from '../controllers/connections/whatsappController.js';
 
 // ⚠️  Placeholder controllers for the other platforms
 // import * as googleController   from '../controllers/connections/googleController.js';
@@ -36,7 +44,7 @@ const router = express.Router();
  *       200:
  *         description: URL generated successfully
  */
-router.get('/facebook/auth-url', getFacebookAuthUrl);
+router.post('/facebook/connectFacebookAccount', connectFacebookAccount);
 
 /**
  * @swagger
@@ -80,5 +88,20 @@ router.post('/facebook/disconnect', disconnectFacebook);
 /* ------------------------------------------------------------------ */
 /* TODO — Google / LinkedIn / TikTok / X / …                            */
 /* ------------------------------------------------------------------ */
+
+
+/* ------------------------------------------------------------------ */
+/* WHATSAPP                                                           */
+/* ------------------------------------------------------------------ */
+/* OAuth + token exchange */
+router.post ('/whatsapp/auth-url',      getWhatsappAuthUrl);
+router.post('/whatsapp/exchange-code', exchangeWhatsappCode);
+
+/* Messaging + disconnect */
+router.post('/whatsapp/notify',    sendWhatsappNotification);
+router.post('/whatsapp/disconnect',disconnectWhatsapp);
+
+/* Webhook (Meta → your app) */
+router.route('/whatsapp/webhook').get(whatsappWebhook).post(whatsappWebhook);
 
 export default router;
