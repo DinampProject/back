@@ -1,26 +1,40 @@
-import mongoose from 'mongoose';
-import { connectionSchema } from './connection.js';
-import { clientSchema } from './client.js';
+import mongoose from "mongoose";
+import { connectionSchema } from "./connection.js";
+import { clientSchema } from "./client.js";
 
 const userSchema = new mongoose.Schema(
   {
-    uid:    { type: String, required: true, trim: true },
-    name:   { type: String, required: true, trim: true },
-    email:  { type: String, required: true, unique: true, lowercase: true, trim: true },
-    image:  String,         
+    uid: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    image: String,
     connections: [connectionSchema],
-    clients: [clientSchema],
+    clients: {
+      type: [clientSchema],
+      default: [],
+    },
     settings: {
-      language:      { type: String, default: 'en' },
+      language: { type: String, default: "en" },
       notifications: { type: Boolean, default: true },
-      theme:         { type: String, enum: ['light', 'dark'], default: 'light' },
+      theme: { type: String, enum: ["light", "dark"], default: "light" },
     },
   },
-  { timestamps: true, _id: true }
+  { timestamps: true }
 );
 
-const User = mongoose.models.user || mongoose.model('user', userSchema);
-
+const User = mongoose.models.user || mongoose.model("user", userSchema);
 export default User;
-
-

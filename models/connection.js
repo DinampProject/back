@@ -1,7 +1,5 @@
-// models/connection.js
-
-import mongoose from 'mongoose';
-import encrypt from 'mongoose-encryption';
+import mongoose from "mongoose";
+import encrypt from "mongoose-encryption";
 
 export const connectionSchema = new mongoose.Schema(
   {
@@ -16,13 +14,12 @@ export const connectionSchema = new mongoose.Schema(
   { _id: true }
 );
 
-// Encrypt sensitive fields
 const secret = process.env.ENCRYPTION_SECRET;
 if (!secret) {
-  throw new Error('ENCRYPTION_SECRET must be set in environment variables');
+  throw new Error("ENCRYPTION_SECRET must be set in environment variables");
 }
 
 connectionSchema.plugin(encrypt, {
   secret,
-  encryptedFields: ['pageAccessToken', 'userAccessToken'],
+  encryptedFields: ["pageAccessToken", "userAccessToken"],
 });

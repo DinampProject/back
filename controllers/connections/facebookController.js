@@ -115,13 +115,17 @@ export const exchangeFacebookCode = asyncHandler(async (req, res) => {
     const userAccessToken = longTok.access_token;
 
     /* 3. fetch first page that the user manages */
-    const { data: pages } = await axios.get(`${FB_GRAPH_BASE}/me/accounts`, {
-      params: { access_token: userAccessToken, fields: 'id,name,access_token' },
-    });
+  const { data: pages } = await axios.get(`${FB_GRAPH_BASE}/me/accounts`, {
+    params: { access_token: userAccessToken, fields: 'id,name,access_token' },
+  });
+console.log('Available pages:', pages.data.map(p => `${p.name} (id: ${p.id})`));
     if (!pages.data?.length)
-      return res.status(400).json({ message: 'No Facebook Pages found' });
+    return res.status(400).json({ message: 'No Facebook Pages found' });
+  const healthPage = pages.data.find(p => p.id === '1376879695880213');
+if (!healthPage)
+  return res.status(400).json({ message: 'Click-Avatar page not found. Please ensure it is managed by your account.' });
 
-    const [{ id: pageId, name: pageName, access_token: pageAccessToken }] = pages.data;
+  const { id: pageId, name: pageName, access_token: pageAccessToken } = healthPage;
 
     /* -------- persist connection -------- */
     const user = await User.findOne({ uid });
@@ -136,6 +140,8 @@ export const exchangeFacebookCode = asyncHandler(async (req, res) => {
       userAccessToken,
       connectedAt: new Date(),
     };
+
+    console.log('Saving connection:', conn); // ✅ ADD THIS LINE
 
     const ix = user.connections.findIndex(c => c.provider === 'facebook');
     ix === -1 ? user.connections.push(conn)
@@ -158,24 +164,34 @@ export const sendFacebookNotification = asyncHandler(async (req, res) => {
   if (!uid || !psid || !message)
     return res.status(400).json({ message: 'uid, psid, message required' });
 
-  const user   = await User.findById(uid).lean();
+const user = await User.findOne({ uid });  // ✅ correct for Firebase UIDs
   if (!user) return res.status(404).json({ message: 'User not found' });
 
-  const fbConn = user.connections?.find(c => c.provider === 'facebook');
-  if (!fbConn)
-    return res.status(404).json({ message: 'Facebook not connected' });
+const fbConn = user.connections?.find(
+  c => c.provider === 'facebook' && c.pageId === '1376879695880213'
+);
+  console.log('fbConn:', fbConn);
+ if (!fbConn || !fbConn.pageAccessToken) {
+  return res.status(400).json({ message: 'Facebook page access token missing or connection not found.' });
+}
+
+const finalPsid = psid === 'me' ? fbConn.psid : psid;
+if (!finalPsid) {
+  return res.status(400).json({ message: 'No PSID available. The user must first message the Page.' });
+}
+
 
   try {
-    await axios.post(
-      `${FB_GRAPH_BASE}/me/messages`,
-      {
-        recipient: { id: psid },
-        message:   { text: message },
-        messaging_type: 'MESSAGE_TAG',
-        tag: 'ACCOUNT_UPDATE',
-      },
-      { params: { access_token: fbConn.pageAccessToken } },
-    );
+await axios.post(`${FB_GRAPH_BASE}/me/messages`, {
+      recipient: { id: finalPsid },
+  message: { text: message },
+    messaging_type: 'MESSAGE_TAG',
+    tag: 'ACCOUNT_UPDATE',
+}, {
+  params: {
+    access_token: fbConn.pageAccessToken
+  }
+});
     res.json({ success: true });
   } catch (e) {
     console.error('Send notification error:', e.message);

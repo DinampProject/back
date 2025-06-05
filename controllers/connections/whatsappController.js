@@ -117,7 +117,7 @@ export const exchangeWhatsappCode = asyncHandler(async (req, res) => {
     const wabaId              = waba.id;
 
     /* 2-d – update user document */
-    const user = await User.findById(uid);
+    const user = await User.findOne({ uid }).lean();
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     const idx = user.connections.findIndex((c) => c.provider === 'whatsapp');
@@ -161,7 +161,7 @@ export const sendWhatsappNotification = asyncHandler(async (req, res) => {
       .json({ message: 'uid, to, templateName are required' });
   }
 
-  const user = await User.findById(uid).lean();
+  const user = await User.findOne({ uid }).lean();
   if (!user) return res.status(404).json({ message: 'User not found' });
 
   const waConn = user.connections?.find((c) => c.provider === 'whatsapp');
@@ -204,7 +204,7 @@ export const disconnectWhatsapp = asyncHandler(async (req, res) => {
   const { uid } = req.body;
   if (!uid) return res.status(400).json({ message: 'uid required' });
 
-  const user = await User.findById(uid);
+  const user = await User.findOne({ uid }).lean();
   if (!user) return res.status(404).json({ message: 'User not found' });
 
   user.connections = user.connections.filter(

@@ -5,6 +5,7 @@ import {
   exchangeFacebookCode,
   sendFacebookNotification,
   disconnectFacebook,
+  facebookWebhook,               // ייבוא הפונקציה החדשה
 } from '../controllers/connections/facebookController.js';
 
 import {
@@ -35,8 +36,8 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/connections/facebook/auth-url:
- *   get:
+ * /api/connections/facebook/connectFacebookAccount:
+ *   post:
  *     summary: Get the Facebook OAuth dialog URL
  *     tags: [Connections]
  *     description: Returns the fully-qualified URL that the client must open so the user can grant permissions.
@@ -85,23 +86,50 @@ router.post('/facebook/notify', sendFacebookNotification);
  */
 router.post('/facebook/disconnect', disconnectFacebook);
 
+/**
+ * @swagger
+ * /api/connections/facebook/webhook:
+ *   get:
+ *     summary: Verify Facebook Webhook
+ *     tags: [Connections]
+ *     description: Endpoint for Facebook to GET during webhook setup (hub.challenge).
+ *     responses:
+ *       200:
+ *         description: Returns hub.challenge value if verify_token matches.
+ *       403:
+ *         description: Verification failed.
+ *   post:
+ *     summary: Handle incoming Messenger events
+ *     tags: [Connections]
+ *     description: Receives real-time messages from users (PSID) and stores them.
+ *     responses:
+ *       200:
+ *         description: Event received.
+ */
+router
+  .route('/facebook/webhook')
+  .get(facebookWebhook)
+  .post(facebookWebhook);
+
 /* ------------------------------------------------------------------ */
 /* TODO — Google / LinkedIn / TikTok / X / …                            */
 /* ------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------ */
 /* WHATSAPP                                                           */
 /* ------------------------------------------------------------------ */
 /* OAuth + token exchange */
-router.post ('/whatsapp/auth-url',      getWhatsappAuthUrl);
+router.post('/whatsapp/auth-url', getWhatsappAuthUrl);
 router.post('/whatsapp/exchange-code', exchangeWhatsappCode);
 
 /* Messaging + disconnect */
-router.post('/whatsapp/notify',    sendWhatsappNotification);
-router.post('/whatsapp/disconnect',disconnectWhatsapp);
+router.post('/whatsapp/notify', sendWhatsappNotification);
+router.post('/whatsapp/disconnect', disconnectWhatsapp);
 
 /* Webhook (Meta → your app) */
-router.route('/whatsapp/webhook').get(whatsappWebhook).post(whatsappWebhook);
+router
+  .route('/whatsapp/webhook')
+  .get(whatsappWebhook)
+  .post(whatsappWebhook);
 
 export default router;
